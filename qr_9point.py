@@ -80,4 +80,15 @@ while cap.isOpened():
             with open(csv_file, mode='a', newline='', encoding='utf-8') as f:
                 writer = csv.writer(f)
                 writer.writerow(hex_colors)
-                print(f"Saved: {hex_colors}")
+            last_saved_row = hex_colors
+
+    # プレビューはカラー画像を表示
+    cv2.imshow('QR 4-Point High-Precision', frame)
+    
+    # オプション：検知用の白黒画像を見たい場合はコメント解除
+    # cv2.imshow('Detection View', enhanced)
+
+    if cv2.waitKey(1) & 0xFF == ord('q'): break
+
+cap.release()
+cv2.destroyAllWindows()
