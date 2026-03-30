@@ -18,7 +18,6 @@ if not os.path.exists(csv_file):
 cap = cv2.VideoCapture(0)
 qrCodeDetector = cv2.QRCodeDetector()
 
-clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
 
 last_saved_row = None
 
@@ -30,9 +29,8 @@ while cap.isOpened():
         break
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    enhanced = clahe.apply(gray)
 
-    decodedText, points, _ = qrCodeDetector.detectAndDecode(enhanced)
+    decodedText, points, _ = qrCodeDetector.detectAndDecode(gray)
 
     if points is not None:
         points = points[0]  # p0,p1,p2,p3
