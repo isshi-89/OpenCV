@@ -18,9 +18,6 @@ if not os.path.exists(csv_file):
 cap = cv2.VideoCapture(0)
 qrCodeDetector = cv2.QRCodeDetector()
 
-
-last_saved_row = None
-
 print("実行中... グレー化前処理を適用して開始します。")
 
 while cap.isOpened():
@@ -29,12 +26,10 @@ while cap.isOpened():
         break
 
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
     decodedText, points, _ = qrCodeDetector.detectAndDecode(gray)
 
     if points is not None:
         points = points[0]  # p0,p1,p2,p3
-
         p0, p1, p2, p3 = points
 
         # 四角形内部補間関数
@@ -55,14 +50,12 @@ while cap.isOpened():
             for j in range(3):    # u方向（横）
                 u = (j + 0.5) / 3
                 v = (i + 0.5) / 3
-
                 cx, cy = quad_interp(u, v)
 
                 # 範囲チェック
                 h, w = frame.shape[:2]
                 cx = max(0, min(cx, w - 1))
                 cy = max(0, min(cy, h - 1))
-
                 cell_points.append((cx, cy))
 
                 # 色取得
@@ -73,20 +66,16 @@ while cap.isOpened():
         for (cx, cy) in cell_points:
             cv2.circle(frame, (cx, cy), 5, (0, 0, 255), -1)
 
-        # CSV保存（横並び9セル）
-        if hex_colors != last_saved_row:
-            with open(csv_file, mode='a', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerow(hex_colors)
-            last_saved_row = hex_colors
+        # CSV保存（毎回保存・重複チェックなし）
+        with open(csv_file, mode='a', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(hex_colors)
 
     # プレビューはカラー画像を表示
     cv2.imshow('QR 4-Point High-Precision', frame)
-    
-    # オプション：検知用の白黒画像を見たい場合はコメント解除
-    # cv2.imshow('Detection View', enhanced)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'): break
+    if cv2.waitKey(10) & 0xFF == ord('q'):
+        break
 
 cap.release()
 cv2.destroyAllWindows()
